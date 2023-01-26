@@ -1,0 +1,75 @@
+#!/usr/bin/python3
+
+import socket
+import time
+from multiprocessing import Process, Queue
+from stream import StreamingOutput
+from stream import StreamingHandler
+from stream import StreamingServer
+
+from picamera2 import Picamera2, Preview
+from picamera2.encoders import H264Encoder
+from picamera2.outputs import FileOutput
+
+import os
+
+high = (1280, 720)
+low = (640,480)
+
+class picam():
+    def __init__(self):
+#        self.low = (640,480)
+        self.picam2 = Picamera2()
+        self.camera_config = self.picam2.create_still_configuration(main={"size": low})
+        # self.camera_config = self.picam2.create_video_configuration(main={"size": low})
+        self.picam2.configure(self.camera_config)
+        self.picam2.start()
+        print("camera started")
+
+    def captureVideo(self):
+        self.encoder = H264Encoder(bitrate=10000000)
+        self.picam2.start_recording(self.encoder, "Pics/video.h264")
+        print("recording....")
+        time.sleep(7)
+        self.picam2.stop_recording()
+        print("stop recording")
+
+    def captureImage(self):
+        self.picam2.start()
+        self.picam2.capture_file("test2.jpg")
+        print("image captured")
+
+    def captureImageWithObsID(self,number):
+        print("Pics/obstacle"+ str(number) +".jpg")
+        path = "Pics/obstacle"+ str(number) +".jpg"
+        # print(f'current path: {os.getcwd()}')
+        # # self.picam2.capture_file("Pics/obstacle"+ str(number) +".jpg")
+        # current_path = os.getcwd()
+        # file_name = f"{str(number)}.jpg"
+        # fullpath = os.path.join(current_path,file_name)
+        # print(f'path printed to: {fullpath}')
+        self.picam2.capture_file(path)
+        print("image captured")
+        return path
+
+# def test():
+#     testCam = picam()
+#     # picam.captureImage()
+#     testCam.captureImageWithObsID(4)
+# # #if __name__ == "__main__":
+
+# process = Process(target=test)
+# process.start()
+#     # picam.captureImage()
+# picam.captureImageWithObsID(4)
+# picam2 = Picamera2()
+# picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+# output = StreamingOutput()
+# picam2.start_recording(JpegEncoder(), FileOutput(output))
+
+# try:
+#     address = ('', 8000)
+#     server = StreamingServer(address, StreamingHandler)
+#     server.serve_forever()
+# finally:
+#     picam2.stop_recording()
